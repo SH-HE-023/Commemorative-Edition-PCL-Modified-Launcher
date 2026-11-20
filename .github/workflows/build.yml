@@ -1,0 +1,29 @@
+name: build-launcher
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: 检出源码（含子模块）
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: 安装 MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: 编译 Release
+        run: msbuild "Plain Craft Launcher 2.sln" /p:Configuration=Release /p:Platform="Any CPU" /m /verbosity:minimal
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: launcher-release
+          path: |
+            Plain Craft Launcher 2/bin/*.exe
+            !Plain Craft Launcher 2/bin/*.exe/*.pdb
